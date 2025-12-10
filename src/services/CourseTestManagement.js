@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// TestForm - компонент, который мы создадим далее
+import { CourseQuestionManagement } from './CourseQuestionManagement';
 import { TestForm } from '../components/TestForm'; 
 
 const API_URL = 'http://localhost:8080';
@@ -20,16 +20,19 @@ export const CourseTestManagement = ({ courseId, courseTitle, onBack, onManageQu
     const [error, setError] = useState(null);
     const [editingTest, setEditingTest] = useState(null); // null или объект теста
     const [isAddingTest, setIsAddingTest] = useState(false);
+    const [managingQuestions, setManagingQuestions] = useState(null);
 
     // --- ФУНКЦИЯ ЗАГРУЗКИ ТЕСТОВ ---
-    const fetchTests = async () => {
+   const fetchTests = async () => {
         setLoading(true);
         setError(null);
+        // Не загружаем, если управляем вопросами
+        if (managingQuestions) {
+            setLoading(false);
+            return;
+        } 
         try {
-            // GET /api/tests/course/{courseId}
             const response = await axios.get(`${API_URL}/api/tests/course/${courseId}`, authHeader());
-            
-            // Сортируем по orderIndex для правильного отображения порядка
             const sortedTests = response.data.sort((a, b) => a.orderIndex - b.orderIndex);
             setTestsList(sortedTests);
         } catch (err) {
@@ -40,11 +43,13 @@ export const CourseTestManagement = ({ courseId, courseTitle, onBack, onManageQu
         }
     };
 
-    useEffect(() => {
-        if (courseId) {
+ useEffect(() => {
+        if (courseId && !managingQuestions) { 
             fetchTests();
         }
-    }, [courseId]);
+    }, [courseId, managingQuestions]);
+
+
 
     // --- ФУНКЦИЯ УДАЛЕНИЯ ТЕСТА ---
     const handleDeleteTest = async (testId, title) => {
@@ -68,6 +73,27 @@ export const CourseTestManagement = ({ courseId, courseTitle, onBack, onManageQu
         setEditingTest(null);
         fetchTests(); // Обновляем список
     };
+// --- ОБРАБОТЧИК КНОПКИ 'Вопросы' ---
+    const handleManageQuestions = (testId, testTitle) => {
+        setManagingQuestions({ testId, testTitle });
+    };// --- ОБРАБОТЧИК КНОПКИ 'Назад' из CourseQuestionManagement ---
+    const handleBackFromQuestions = () => {
+        setManagingQuestions(null);
+        fetchTests(); // Обновляем список тестов после возврата
+    };
+
+
+    // --- УСЛОВНЫЙ РЕНДЕРИНГ: УПРАВЛЕНИЕ ВОПРОСАМИ ---
+    if (managingQuestions) {
+        return (
+            <CourseQuestionManagement
+                testId={managingQuestions.testId}
+                testTitle={managingQuestions.testTitle}
+                onBack={handleBackFromQuestions} // Вернуться к списку тестов
+            />
+        );
+    }
+
 
     // --- УСЛОВНЫЙ РЕНДЕРИНГ ФОРМЫ ---
     if (isAddingTest || editingTest) {
@@ -118,9 +144,9 @@ export const CourseTestManagement = ({ courseId, courseTitle, onBack, onManageQu
                             
                             {/* Кнопки действий */}
                             <div>
-                                <button 
+                               <button 
                                     className="btn btn-sm btn-outline-primary me-2"
-                                    onClick={() => onManageQuestions(test.id, test.title)}
+                                    onClick={() => handleManageQuestions(test.id, test.title)}
                                 >
                                     Вопросы
                                 </button>
