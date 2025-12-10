@@ -4,6 +4,7 @@ import { Header } from "./components/header";
 import { Features } from "./components/features";
 import { About } from "./components/about";
 import { Services } from "./components/services";
+import { CourseManagement } from './services/CourseManagement';
 import { Gallery } from "./components/gallery";
 import { Testimonials } from "./components/testimonials";
 import { Team } from "./components/Team";
@@ -34,6 +35,7 @@ const App = () => {
  );
 
 
+const ROLE_TEACHER = 2;
   // ФУНКЦИИ УПРАВЛЕНИЯ МОДАЛОМ
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -67,6 +69,21 @@ const handleLoginSuccess = (token, roleId) => {
         onLogout={handleLogout} 
         userRoleID={userRoleID}
       />
+      {isLoggedIn && userRoleID === ROLE_TEACHER ? (
+             <CourseManagement />
+        ) : (
+            // Иначе показываем основную страницу лендинга
+            <>
+                <Header data={landingPageData.Header} />
+                <Features data={landingPageData.Features} />
+                <About data={landingPageData.About} />
+                <Services data={landingPageData.Services} />
+                <Gallery data={landingPageData.Gallery} />
+                <Testimonials data={landingPageData.Testimonials} />
+                <Team data={landingPageData.Team} />
+                <Contact data={landingPageData.Contact} />
+            </>
+        )}
       <Header data={landingPageData.Header} />
       <Features data={landingPageData.Features} />
       <About data={landingPageData.About} />
