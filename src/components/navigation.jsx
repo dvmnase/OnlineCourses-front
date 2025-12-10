@@ -1,66 +1,68 @@
-import React from "react";
+// src/components/Navigation.js (Концептуальный код)
 
-// Этот компонент принимает props: openAuthModal, isLoggedIn, onLogout
+// Принимаем userRoleID как пропс
 export const Navigation = (props) => {
-  return (
-    <nav id="menu" className="navbar navbar-default navbar-fixed-top">
-      <div className="container">
-        <div className="navbar-header">
-          <button
-            type="button"
-            className="navbar-toggle collapsed"
-            data-toggle="collapse"
-            data-target="#bs-example-navbar-collapse-1"
-          >
-            {" "}
-            <span className="sr-only">Toggle navigation</span>{" "}
-            <span className="icon-bar"></span>{" "}
-            <span className="icon-bar"></span>{" "}
-            <span className="icon-bar"></span>{" "}
-          </button>
-          <a className="navbar-brand page-scroll" href="#page-top">
-            React Landing Page
-          </a>{" "}
-        </div>
+    const { isLoggedIn, onLogout, openAuthModal, userRoleID } = props;
+    
+    // ID ролей
+    const ROLE_TEACHER = 2;
+    const ROLE_ADMIN = 1;
+    const ROLE_STUDENT = 3;
 
-        <div
-          className="collapse navbar-collapse"
-          id="bs-example-navbar-collapse-1"
-        >
-          <ul className="nav navbar-nav navbar-right">
-            <li><a href="#features" className="page-scroll">Features</a></li>
-            <li><a href="#about" className="page-scroll">About</a></li>
-            <li><a href="#services" className="page-scroll">Services</a></li>
-            <li><a href="#portfolio" className="page-scroll">Gallery</a></li>
-            <li><a href="#testimonials" className="page-scroll">Testimonials</a></li>
-            <li><a href="#team" className="page-scroll">Team</a></li>
-            <li><a href="#contact" className="page-scroll">Contact</a></li>
-            
-            {/* !!! ВСТАВЛЯЕМ КНОПКУ СЮДА !!! */}
-            <li style={{ marginLeft: '15px' }}>
-              {/* Используем пропсы, переданные из App.js */}
-              {props.isLoggedIn ? (
-                <a 
-                  onClick={props.onLogout} 
-                  className='page-scroll btn btn-custom' 
-                  style={{ cursor: 'pointer' }}
-                >
-                  Выйти
-                </a>
-              ) : (
-                <a 
-                  onClick={props.openAuthModal} // Вот вызов функции, которая откроет модал
-                  className='page-scroll btn btn-custom' 
-                  style={{ cursor: 'pointer' }}
-                >
-                  Войти / Регистрация
-                </a>
-              )}
-            </li>
-            {/* ---------------------------------- */}
-          </ul>
-        </div>
-      </div>
-    </nav>
-  );
+    // Функция для рендеринга меню, специфичного для ролей
+    const renderRoleSpecificMenu = () => {
+        if (userRoleID === ROLE_ADMIN) {
+            // Меню для администратора (1)
+            return (
+                <ul className='nav navbar-nav navbar-right'>
+                    <li><a href='#dashboard'>Админ-Панель</a></li>
+                    <li><a href='#users'>Управление</a></li>
+                </ul>
+            );
+        } else if (userRoleID === ROLE_TEACHER) { // Фокусируемся на Учителе (2)
+            // Меню для учителя (2)
+            return (
+                <ul className='nav navbar-nav navbar-right'>
+                    <li><a href='#my-courses'>Мои курсы</a></li>
+                    <li><a href='#create-course'>Создать курс</a></li>
+                    {/* Другие пункты меню учителя */}
+                </ul>
+            );
+        } else if (userRoleID === ROLE_STUDENT) {
+            // Меню для студента (3)
+            return (
+                <ul className='nav navbar-nav navbar-right'>
+                    <li><a href='#catalog'>Каталог</a></li>
+                    <li><a href='#my-learning'>Мое обучение</a></li>
+                </ul>
+            );
+        }
+        return null; // Ничего не рендерить, если пользователь вошел, но роли нет (или он на главной странице)
+    };
+
+    return (
+        <nav id='menu' className='navbar navbar-default navbar-fixed-top'>
+            <div className='container'>
+                {/* ... Логотип и стандартное меню ... */}
+                
+                {/* Меню, видимое только для залогиненных пользователей */}
+                {isLoggedIn && (
+                    <>
+                        {renderRoleSpecificMenu()}
+                        <ul className='nav navbar-nav navbar-right'>
+                            <li><a onClick={onLogout}>Выйти</a></li>
+                        </ul>
+                    </>
+                )}
+                
+                {/* Кнопка "Войти/Регистрация" для не-залогиненных пользователей */}
+                {!isLoggedIn && (
+                    <ul className='nav navbar-nav navbar-right'>
+                        <li><a onClick={openAuthModal}>Войти / Регистрация</a></li>
+                    </ul>
+                )}
+
+            </div>
+        </nav>
+    );
 };

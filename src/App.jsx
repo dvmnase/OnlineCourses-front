@@ -26,14 +26,24 @@ const App = () => {
   
   // Инициализируем статус, проверяя наличие токена в localStorage
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
+
+  const [userRoleID, setUserRoleID] = useState(
+    localStorage.getItem('user_role_id') 
+    ? parseInt(localStorage.getItem('user_role_id')) 
+    : null
+ );
+
+
   // ФУНКЦИИ УПРАВЛЕНИЯ МОДАЛОМ
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   // ФУНКЦИИ АУТЕНТИФИКАЦИИ (требуется для Header/Navigation)
-const handleLoginSuccess = (token) => {
-      if (token) {
-          localStorage.setItem('access_token', token); // Сохраняем токен
+const handleLoginSuccess = (token, roleId) => {
+     if (token && roleId) {
+          localStorage.setItem('access_token', token); 
+          localStorage.setItem('user_role_id', roleId);
+          setUserRoleID(roleId);
       }
       setIsLoggedIn(true);
       closeModal();
@@ -41,7 +51,9 @@ const handleLoginSuccess = (token) => {
   const handleLogout = () => {
       localStorage.removeItem('access_token'); // Удаляем токены при выходе
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_role_id');
       setIsLoggedIn(false);
+      setUserRoleID(null);
   };
   useEffect(() => {
     setLandingPageData(JsonData);
@@ -53,6 +65,7 @@ const handleLoginSuccess = (token) => {
         openAuthModal={openModal} 
         isLoggedIn={isLoggedIn} 
         onLogout={handleLogout} 
+        userRoleID={userRoleID}
       />
       <Header data={landingPageData.Header} />
       <Features data={landingPageData.Features} />

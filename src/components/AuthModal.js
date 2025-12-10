@@ -17,9 +17,9 @@ export const AuthModal = ({ show, onClose,onLoginSuccess }) => {
     const switchToRegister = () => setAuthView('register');
 
     // Функция, которая будет вызываться после успешного входа/регистрации
-const handleSuccess = (token) => {
+const handleSuccess = (token, roleId) => {
         // Вызываем функцию из App.js, передавая токен
-        onLoginSuccess(token); 
+        onLoginSuccess(token, roleId); 
         onClose(); 
     };
 
@@ -54,8 +54,8 @@ const handleSuccess = (token) => {
                     />
                 ) : (
                     <Register 
-                        onSuccess={(token) => { // Регистр теперь тоже принимает токен
-                        handleSuccess(token); // Передаем токен для сохранения
+                        onSuccess={(token, roleId) => { // Регистр теперь тоже принимает токен
+                        handleSuccess(token, roleId); // Передаем токен для сохранения
                         switchToLogin(); // После регистрации обычно переходят на вход
                     }}
                         switchToLogin={switchToLogin}

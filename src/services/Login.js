@@ -27,10 +27,10 @@ export const Login = (props) => {
                 password,
             });
 
-            const { token, message } = response.data;
-           if (token) {
+            const { token, message, roleId  } = response.data;
+          if (token && roleId) {
                 // 1. Сохранение токена происходит в App.js через этот вызов
-                props.onSuccess(token); 
+                props.onSuccess(token, roleId); 
                 
                 // 2. Отображение успешного сообщения (если нужно)
                 setMessage(`✅ ${message}`);

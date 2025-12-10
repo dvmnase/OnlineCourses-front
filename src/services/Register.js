@@ -27,8 +27,8 @@ export const Register = (props) => {
                 email,
                 password
             });
-            const { token } = response.data;
-            props.onSuccess(token);
+            const { token, roleId } = response.data;
+            props.onSuccess(token, roleId);
 
             // Успешная регистрация
             setMessage('✅ Регистрация прошла успешно! Теперь можете войти.');
