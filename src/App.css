@@ -16,3 +16,8 @@
     width: 110%;
   }
 }
+.course-row-hover:hover {
+    background-color: #e8fbff !important; /* Светло-голубой, более яркий цвет (вместо #f0f0f0) */
+    cursor: pointer; /* Подтверждаем, что курсор меняется */
+    transition: background-color 0.3s ease;
+}

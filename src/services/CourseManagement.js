@@ -11,7 +11,7 @@ const authHeader = () => {
     };
 };
 
-export const CourseManagement = () => {
+export const CourseManagement = ({ onCourseSelect }) => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -147,7 +147,19 @@ export const CourseManagement = () => {
                     </thead>
                     <tbody>
                         {courses.map(course => (
-                            <tr key={course.id}>
+                            <tr
+
+                                key={course.id}
+
+                                // !!! ИЗМЕНЕНИЕ ЗДЕСЬ: ПЕРЕДАЕМ ID И TITLE !!!
+
+                                onClick={() => onCourseSelect({ id: course.id, title: course.title })}
+
+                                style={{ cursor: 'pointer' }}
+
+                                className="course-row-hover"
+
+                            >
                                 <td>{course.title}</td>
                                 <td>{course.description ? course.description.substring(0, 50) + '...' : 'Нет описания'}</td> {/* ОГРАНИЧИВАЕМ ДЛИНУ */}
                                 <td>{course.isPublished ? 'Опубликован' : 'Черновик'}</td>
