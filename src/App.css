@@ -21,3 +21,19 @@
     cursor: pointer; /* Подтверждаем, что курсор меняется */
     transition: background-color 0.3s ease;
 }
+
+.course-card-hover {
+    /* Обеспечиваем плавный переход для эффекта наведения */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.course-card-hover:hover {
+    /* Слегка приподнимаем карточку (визуальный эффект) */
+    transform: translateY(-5px); 
+    
+    /* Увеличиваем тень, делая ее более заметной (эффект "поднятия") */
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important; 
+    
+    /* Можно также немного изменить цвет фона, например, сделать его чуть светлее */
+    background-color: #fcfcfc;
+}
