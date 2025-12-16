@@ -4,13 +4,6 @@ import { Header } from "./components/header";
 import { Features } from "./components/features";
 import { About } from "./components/about";
 import { Services } from "./components/services";
-
-// Проверьте пути: если вы переместили эти компоненты в './services/', оставьте, как есть.
-// Если они в './components/', измените путь. Я использую путь из вашего последнего сообщения.
-import { CourseManagement } from './services/CourseManagement';
-import { CourseCatalog } from './services/CourseCatalog';
-import { CourseContentManagement } from './services/CourseContentManagement';
-
 import { Gallery } from "./components/gallery";
 import { Testimonials } from "./components/testimonials";
 import { Team } from "./components/Team";
@@ -21,6 +14,37 @@ import "./App.css";
 
 import { AuthModal } from './components/AuthModal';
 
+// Импорт компонентов страниц
+import { CourseManagement } from './services/CourseManagement';
+import { CourseCatalog } from './services/CourseCatalog';
+import { CourseContentManagement } from './services/CourseContentManagement';
+import { MyLearning } from './services/MyLearning';
+import { StudentCourseContentView } from './services/StudentCourseContentView';
+
+// =======================================================
+// PLACEHOLDERS: Предполагаемые компоненты для студента
+// =======================================================
+
+
+
+// Компонент-заглушка для прохождения тестов студентом
+const StudentCourseTestView = ({ course, onBack }) => (
+    <div className="container py-5 mt-5">
+        <h1 className="text-success">Тесты курса: {course.title}</h1>
+        <p>ID курса: {course.id}</p>
+        <button onClick={onBack} className="btn btn-secondary">
+            ← Назад к Моему обучению
+        </button>
+        <div className="mt-4 border p-3">
+            {/* Здесь будет логика отображения тестов, полученных через API */}
+            Раздел тестирования в разработке.
+        </div>
+    </div>
+);
+
+// =======================================================
+// ГЛАВНЫЙ КОМПОНЕНТ APP
+// =======================================================
 
 export const scroll = new SmoothScroll('a[href*="#"]', {
     speed: 1000,
@@ -42,7 +66,11 @@ const App = () => {
     const ROLE_TEACHER = 2;
     const ROLE_STUDENT = 3;
 
-    const [selectedCourse, setSelectedCourse] = useState(null);
+    // Состояние для управления курсом (Учитель)
+    const [selectedCourse, setSelectedCourse] = useState(null); 
+    
+    // НОВОЕ СОСТОЯНИЕ ДЛЯ УПРАВЛЕНИЯ КУРСОМ (Студент)
+    const [studentSelectedCourse, setStudentSelectedCourse] = useState(null); 
     
     // --- НОВОЕ СОСТОЯНИЕ ДЛЯ УПРАВЛЕНИЯ ТЕКУЩЕЙ СТРАНИЦЕЙ ---
     const [currentPage, setCurrentPage] = useState('home'); 
@@ -50,13 +78,30 @@ const App = () => {
     // Функция для возврата к списку курсов (Учитель)
     const handleBackToCourses = () => setSelectedCourse(null);
     
+    // Функция для возврата к "Моему обучению" (Студент)
+    const handleBackToMyLearning = () => {
+        setStudentSelectedCourse(null);
+        setCurrentPage('my-learning');
+    };
+
     // Функция для выбора курса и перехода к контенту (Учитель)
     const handleCourseSelect = (courseData) => setSelectedCourse(courseData);
 
-    // --- ФУНКЦИЯ: Смена страницы ---
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-        setSelectedCourse(null); // Сброс выбранного курса при смене страницы
+    /**
+     * ФУНКЦИЯ: Смена страницы (Поддерживает как строку, так и объект)
+     * @param {string | {page: string, data: object}} target - Название страницы или объект перехода
+     */
+    const handlePageChange = (target) => {
+        // Если передан объект (например, из MyLearning для перехода в контент/тест)
+        if (typeof target === 'object' && target !== null && target.page) {
+            setCurrentPage(target.page);
+            setStudentSelectedCourse(target.data); // Сохраняем данные курса для студента
+        } else if (typeof target === 'string') {
+            // Если передана строка (для обычной навигации)
+            setCurrentPage(target);
+            setSelectedCourse(null); // Сброс курса учителя
+            setStudentSelectedCourse(null); // Сброс курса студента
+        }
     };
 
     // ФУНКЦИИ УПРАВЛЕНИЯ МОДАЛОМ
@@ -96,9 +141,11 @@ const App = () => {
         // Установка страницы при загрузке, если пользователь уже авторизован
         if (isLoggedIn) {
             if (userRoleID === ROLE_STUDENT) {
-                setCurrentPage('catalog');
+                // Если студент залогинен, переходим к каталогу по умолчанию
+                setCurrentPage('catalog'); 
             } else if (userRoleID === ROLE_TEACHER) {
-                setCurrentPage('management');
+                // Если учитель залогинен, переходим к управлению курсами
+                setCurrentPage('management'); 
             }
         }
     }, [isLoggedIn, userRoleID]);
@@ -125,17 +172,42 @@ const App = () => {
         // ЛОГИКА АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
         if (userRoleID === ROLE_STUDENT) {
             // СТУДЕНТ
+
+            // 1. Просмотр контента курса
+            if (currentPage === 'course-content-student' && studentSelectedCourse) {
+                return (
+                    <StudentCourseContentView 
+                        course={studentSelectedCourse} 
+                        onBack={handleBackToMyLearning} 
+                    />
+                );
+            }
+            // 2. Просмотр тестов курса
+            if (currentPage === 'course-test-student' && studentSelectedCourse) {
+                 return (
+                    <StudentCourseTestView 
+                        course={studentSelectedCourse} 
+                        onBack={handleBackToMyLearning} 
+                    />
+                );
+            }
+
+            // 3. Основная навигация
             switch(currentPage) {
                 case 'catalog':
                     return <CourseCatalog />; // Каталог опубликованных курсов
                 case 'my-learning':
-                    return <div className="container py-5 mt-5"><h1>Мои курсы (В разработке)</h1></div>;
+                    // MyLearning использует handlePageChange для перехода к контенту/тестам
+                    return <MyLearning onCourseView={handlePageChange} />; 
                 // ... другие страницы студента
                 default:
                     return <CourseCatalog />;
             }
+            
         } else if (userRoleID === ROLE_TEACHER) {
             // УЧИТЕЛЬ
+
+            // 1. Управление контентом/тестами конкретного курса
             if (selectedCourse) {
                 // Если выбран курс, показываем управление контентом
                 return (
@@ -146,6 +218,8 @@ const App = () => {
                     />
                 );
             }
+            
+            // 2. Основная навигация
             switch(currentPage) {
                 case 'management':
                 case 'my-courses-management': // Ссылка из навигации
