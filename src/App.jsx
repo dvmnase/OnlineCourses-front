@@ -20,27 +20,10 @@ import { CourseCatalog } from './services/CourseCatalog';
 import { CourseContentManagement } from './services/CourseContentManagement';
 import { MyLearning } from './services/MyLearning';
 import { StudentCourseContentView } from './services/StudentCourseContentView';
-
-// =======================================================
-// PLACEHOLDERS: Предполагаемые компоненты для студента
-// =======================================================
+import { StudentCourseTestView } from './services/StudentCourseTestView';
 
 
 
-// Компонент-заглушка для прохождения тестов студентом
-const StudentCourseTestView = ({ course, onBack }) => (
-    <div className="container py-5 mt-5">
-        <h1 className="text-success">Тесты курса: {course.title}</h1>
-        <p>ID курса: {course.id}</p>
-        <button onClick={onBack} className="btn btn-secondary">
-            ← Назад к Моему обучению
-        </button>
-        <div className="mt-4 border p-3">
-            {/* Здесь будет логика отображения тестов, полученных через API */}
-            Раздел тестирования в разработке.
-        </div>
-    </div>
-);
 
 // =======================================================
 // ГЛАВНЫЙ КОМПОНЕНТ APP
@@ -109,10 +92,11 @@ const App = () => {
     const closeModal = () => setIsModalOpen(false);
 
     // ФУНКЦИИ АУТЕНТИФИКАЦИИ
-    const handleLoginSuccess = (token, roleId) => {
+    const handleLoginSuccess = (token, roleId,userId) => {
         if (token && roleId) {
             localStorage.setItem('access_token', token); 
             localStorage.setItem('user_role_id', roleId);
+            localStorage.setItem('user_id', userId);
             setUserRoleID(roleId);
         }
         setIsLoggedIn(true);
